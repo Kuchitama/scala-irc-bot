@@ -3,3 +3,5 @@ target/
 /config/
 /bots/
 /maven/
+.idea/
+.idea_modules/
