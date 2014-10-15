@@ -14,7 +14,8 @@ resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/release
 
 libraryDependencies := Seq(
   "org.pircbotx" % "pircbotx" % "1.8",
-  "com.twitter" %% "util-eval" % "6.2.0",
+//  "com.twitter" %% "util-eval" % "6.2.0",
+  "com.typesafe" % "config" % "1.2.1",
   "com.typesafe.akka" %% "akka-actor" % "2.1.0",
   "ch.qos.logback" % "logback-classic" % "1.0.7",
   "junit" % "junit" % "4.10" % "test",
@@ -25,6 +26,8 @@ scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "UTF8", "-featu
 
 unmanagedBase in Runtime <<= baseDirectory { base => base / "bots" }
 
+excludeFilter in unmanagedSources := baseDirectory{ base => base / "net" / "mtgto" / "irc" / "config" / "Config.scala"}.value.getPath
+
 initialCommands := "import net.mtgto.irc._"
 
 ScctPlugin.instrumentSettings
@@ -34,3 +37,5 @@ testOptions in ScctTest += Tests.Argument(TestFrameworks.Specs2, "console", "jun
 org.scalastyle.sbt.ScalastylePlugin.Settings
 
 publishTo := Some(Resolver.file("file", new File("maven/")))
+
+ideaExcludeFolders ++= Seq(".idea", ".idea_modules")

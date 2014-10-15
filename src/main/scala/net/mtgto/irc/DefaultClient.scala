@@ -8,14 +8,35 @@ import akka.actor.{Actor, ActorSystem, Props}
 import org.pircbotx.{PircBotX, User => PircUser}
 import org.pircbotx.hooks.ListenerAdapter
 import org.pircbotx.hooks.events._
-import com.twitter.util.Eval
 import org.slf4j.LoggerFactory
+import com.typesafe.config.{ConfigFactory, Config => TypesafeConfig}
 
 import java.io.File
 import java.util.Date
 
 object DefaultClient {
-  protected[this] val setting: Config = new Eval()(new File("config/Config.scala"))
+  protected[this] val setting: Config = new Config {
+    import scala.util.control.Exception._
+    import scala.collection.JavaConverters._
+
+    private val configFactory = ConfigFactory.load()
+    private val conf = configFactory.getConfig("irc")
+
+    val username: String = conf.getString("username")
+    val messageDelay: Int = conf.getInt("messageDelay")
+    val timerDelay: Int = conf.getInt("timerDelay")
+    val channels: List[String] = conf.getStringList("channels").asScala.toList
+    val hostname: String = conf.getString("hostname")
+    val encoding: String = conf.getString("encoding")
+    val nickname: String = conf.getString("nickname")
+    val password: Option[String] = allCatch opt conf.getString("password")
+    val realname: String = conf.getString("realname")
+    val port: Int = conf.getInt("port")
+
+    val bots:List[(String, Option[TypesafeConfig])] = configFactory.getConfigList("bots").asScala.toList.map { bot =>
+      bot.getString("name") -> allCatch.opt(conf.getConfig("config"))
+    }
+  }
 
   protected[this] val client: Client = new DefaultClient(setting)
 
@@ -26,6 +47,7 @@ object DefaultClient {
 
     while (readLine("> ") != "exit") {}
     client.disconnect
+    sys.exit()
   }
 }
 
@@ -34,8 +56,8 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
 
   protected[this] val innerClient: PircBotX = new PircBotX
 
-  override val bots: Seq[Bot] = setting.bots map {
-    bot => loadBot(bot._1, bot._2)
+  override val bots: Seq[Bot] = setting.bots map { case (botName, botConfig)=>
+    loadBot(botName, botConfig)
   }
 
   innerClient.getListenerManager.addListener(this)
@@ -50,7 +72,7 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
     timerActor ! (this, System.currentTimeMillis)
   }
 
-  protected[this] def loadBot(className: String, botConfig: Option[BotConfig]): Bot = {
+  protected[this] def loadBot(className: String, botConfig: Option[TypesafeConfig]): Bot = {
     import java.net.URLClassLoader
 
     val directory = new File("bots")
@@ -61,7 +83,7 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
     )
     botConfig match {
       case Some(botConfig) =>
-        loader.loadClass(className).getConstructor(botConfig.getClass).newInstance(botConfig).asInstanceOf[Bot]
+        loader.loadClass(className).getConstructor(classOf[TypesafeConfig]).newInstance(botConfig).asInstanceOf[Bot]
       case None =>
         loader.loadClass(className).newInstance.asInstanceOf[Bot]
     }
@@ -130,6 +152,7 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
       text = event.getMessage,
       date = new Date(event.getTimestamp))
     bots foreach (_.onMessage(this, message))
+    println(message)
   }
 
   override def onPrivateMessage(event: PrivateMessageEvent[T]) = {

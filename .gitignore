@@ -5,3 +5,4 @@ target/
 /maven/
 .idea/
 .idea_modules/
+*.conf

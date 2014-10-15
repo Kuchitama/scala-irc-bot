@@ -31,8 +31,8 @@ trait Config {
   val realname: String
 
   // Channels
-  val channels: Array[String]
+  val channels: List[String]
 
   // bot names
-  val bots: Array[(String, Option[BotConfig])]
+  val bots: List[(String, Option[com.typesafe.config.Config])]
 }

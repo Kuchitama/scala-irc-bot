@@ -8,3 +8,5 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.3.2")
 
 resolvers += "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")
+

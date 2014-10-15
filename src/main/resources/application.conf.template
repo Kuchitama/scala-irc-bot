@@ -1,0 +1,16 @@
+irc : {
+    hostname : "localhost" # IRCサーバの名前
+    port : 6667 # IRCサーバのポート
+    password : "password" # パスワード 不要な場合はこの行を削除
+    encoding : "utf-8" # 使用するエンコーディング
+    messageDelay : 2000 # メッセージ間の遅延（ミリ秒）
+    timerDelay : 60000 # タイマーイベント間隔（ミリ秒）
+    nickname : "scala-irc-bot" # ボットのニックネーム
+    username : "scala-irc-bot" # ボットのログイン名
+    realname : "scala-irc-bot" # ボットのリアルネーム
+    channels : ["#bot"] # JOINさせたいチャンネル
+}
+bots : [
+# sample
+# { name: "bot_name", config: {} }
+]
