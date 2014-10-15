@@ -1,7 +1,5 @@
 package net.mtgto.irc
 
-import config.BotConfig
-
 /**
  * IRC Client configuration
  *

@@ -1,10 +1,9 @@
 // -*- scala -*-
-
 name := "scala-irc-bot"
 
 organization := "net.mtgto"
 
-version := "0.2.1"
+version := "0.3.0-SNAPSHOT"
 
 scalaVersion := "2.10.2"
 
@@ -36,3 +35,5 @@ org.scalastyle.sbt.ScalastylePlugin.Settings
 publishTo := Some(Resolver.file("file", new File("maven/")))
 
 ideaExcludeFolders ++= Seq(".idea", ".idea_modules")
+
+lazy val botSample = project.in(file("bot-sample"))

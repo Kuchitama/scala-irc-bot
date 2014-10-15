@@ -1,6 +1,5 @@
 package net.mtgto.irc
 
-import config.BotConfig
 import event._
 
 import akka.actor.{Actor, ActorSystem, Props}
