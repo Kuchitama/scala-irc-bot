@@ -1,4 +1,6 @@
 // -*- scala -*-
+import AssemblyKeys._
+
 name := "scala-irc-bot"
 
 organization := "net.mtgto"
@@ -36,4 +38,4 @@ publishTo := Some(Resolver.file("file", new File("maven/")))
 
 ideaExcludeFolders ++= Seq(".idea", ".idea_modules")
 
-lazy val botSample = project.in(file("bot-sample"))
+lazy val botSample = project.in(file("bot-sample")).settings(assemblySettings : _*)

@@ -1,4 +1,3 @@
-
 name := "bot-sample"
 
 organization := "com.github.kuchitama"
@@ -16,6 +15,3 @@ libraryDependencies := Seq(
   "ch.qos.logback" % "logback-classic" % "1.0.7",
   "net.mtgto" % "scala-irc-bot_2.10" % "0.3.0-SNAPSHOT"
 )
-
-
-
