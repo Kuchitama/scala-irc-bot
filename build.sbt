@@ -14,7 +14,6 @@ resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/release
 
 libraryDependencies := Seq(
   "org.pircbotx" % "pircbotx" % "1.8",
-//  "com.twitter" %% "util-eval" % "6.2.0",
   "com.typesafe" % "config" % "1.2.1",
   "com.typesafe.akka" %% "akka-actor" % "2.1.0",
   "ch.qos.logback" % "logback-classic" % "1.0.7",
@@ -25,8 +24,6 @@ libraryDependencies := Seq(
 scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "UTF8", "-feature")
 
 unmanagedBase in Runtime <<= baseDirectory { base => base / "bots" }
-
-excludeFilter in unmanagedSources := baseDirectory{ base => base / "net" / "mtgto" / "irc" / "config" / "Config.scala"}.value.getPath
 
 initialCommands := "import net.mtgto.irc._"
 
