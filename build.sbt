@@ -11,12 +11,13 @@ scalaVersion := "2.10.2"
 
 crossScalaVersions := Seq("2.10.2")
 
-resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
+resolvers ++= Seq("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/", "theatr.us" at "http://repo.theatr.us")
 
 libraryDependencies := Seq(
   "org.pircbotx" % "pircbotx" % "1.8",
   "com.typesafe" % "config" % "1.2.1",
   "com.typesafe.akka" %% "akka-actor" % "2.1.0",
+  "us.theatr" %% "akka-quartz" % "0.3.0",
   "ch.qos.logback" % "logback-classic" % "1.0.7",
   "junit" % "junit" % "4.10" % "test",
   "org.specs2" %% "specs2" % "1.14" % "test"

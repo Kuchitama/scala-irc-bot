@@ -3,6 +3,9 @@ package net.mtgto.irc
 import event._
 
 trait Bot {
+
+  val quartzSetting:Option[String] = None
+
   def onMessage(client: Client, message: Message) = {}
 
   def onPrivateMessage(client: Client, message: PrivateMessage) = {}
@@ -28,4 +31,7 @@ trait Bot {
   def onQuit(client: Client, quit: Quit) = {}
 
   def onTimer(client: Client) = {}
+
+  def onSchedule(client: Client) = {}
+
 }

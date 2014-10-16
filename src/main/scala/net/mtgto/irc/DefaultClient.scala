@@ -14,6 +14,8 @@ import java.io.File
 import java.util.Date
 
 object DefaultClient {
+  lazy val logger = LoggerFactory.getLogger(this.getClass)
+
   protected[this] val setting: Config = new Config {
     import scala.util.control.Exception._
     import scala.collection.JavaConverters._
@@ -33,7 +35,12 @@ object DefaultClient {
     val port: Int = conf.getInt("port")
 
     val bots:List[(String, Option[TypesafeConfig])] = configFactory.getConfigList("bots").asScala.toList.map { bot =>
-      bot.getString("name") -> allCatch.opt(conf.getConfig("config"))
+      val botName = bot.getString("name")
+      val botConfig = allCatch.opt(bot.getConfig("config"))
+
+      logger.debug(s"bot[${botName}] config[${botConfig}]")
+
+      botName -> botConfig
     }
   }
 
@@ -45,8 +52,9 @@ object DefaultClient {
     client.connect
 
     while (readLine("> ") != "exit") {}
+    logger.info("Try to disconnect irc client...")
     client.disconnect
-    sys.exit()
+    logger.info("Disconnected")
   }
 }
 
@@ -55,8 +63,12 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
 
   protected[this] val innerClient: PircBotX = new PircBotX
 
-  override val bots: Seq[Bot] = setting.bots map { case (botName, botConfig)=>
-    loadBot(botName, botConfig)
+  override lazy val bots: Seq[Bot] = setting.bots map { case (botName, botConfig)=>
+    try {
+      loadBot(botName, botConfig)
+    } catch {
+      case e => throw new RuntimeException(s"failed to load bot[${botName}]", e)
+    }
   }
 
   innerClient.getListenerManager.addListener(this)
@@ -69,6 +81,15 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
   import language.postfixOps
   actorSystem.scheduler.schedule(60 seconds, setting.timerDelay milliseconds) {
     timerActor ! (this, System.currentTimeMillis)
+  }
+
+  def initQuartz() = {
+    import us.theatr.akka.quartz._
+    val quartzActor = actorSystem.actorOf(Props[QuartzActor])
+    val receiveQuartzActor = actorSystem.actorOf(Props[IrcQuartzActor], "net.mtgto.irc.DefaultClient.IrcQuarzActor")
+    bots.toList.filter(_.quartzSetting.isDefined).map{ bot =>
+      quartzActor ! AddCronSchedule(receiveQuartzActor, bot.quartzSetting.get, (this, bot))
+    }
   }
 
   protected[this] def loadBot(className: String, botConfig: Option[TypesafeConfig]): Bot = {
@@ -108,9 +129,12 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
     for (channel <- setting.channels) {
       innerClient.joinChannel(channel)
     }
+
+    initQuartz()
   }
 
   override def disconnect = {
+    actorSystem.shutdown()
     innerClient.quitServer
   }
 
@@ -150,8 +174,8 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
       hostname = event.getUser.getServer,
       text = event.getMessage,
       date = new Date(event.getTimestamp))
+    logger.info(s"onMessage: ${message}")
     bots foreach (_.onMessage(this, message))
-    println(message)
   }
 
   override def onPrivateMessage(event: PrivateMessageEvent[T]) = {
