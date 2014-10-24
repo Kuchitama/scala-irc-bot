@@ -51,7 +51,7 @@ object DefaultClient {
   def main(args: Array[String]): Unit = {
     client.connect
 
-    while (readLine("> ") != "exit") {}
+    while (scala.io.StdIn.readLine("> ") != "exit") {}
     logger.info("Try to disconnect irc client...")
     client.disconnect
     logger.info("Disconnected")
@@ -67,7 +67,7 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
     try {
       loadBot(botName, botConfig)
     } catch {
-      case e => throw new RuntimeException(s"failed to load bot[${botName}]", e)
+      case e:Throwable => throw new RuntimeException(s"failed to load bot[${botName}]", e)
     }
   }
 
@@ -76,7 +76,7 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
   protected[this] val actorSystem = ActorSystem("TimerSystem")
   protected[this] val timerActor = actorSystem.actorOf(Props[TimerActor], "net.mtgto.irc.DefaultClient.TimerActor")
 
-  import actorSystem.dispatcher
+  implicit val dispatcher = actorSystem.dispatchers.defaultGlobalDispatcher
   import concurrent.duration.DurationInt
   import language.postfixOps
   actorSystem.scheduler.schedule(60 seconds, setting.timerDelay milliseconds) {
@@ -136,6 +136,7 @@ class DefaultClient[T <: PircBotX](val setting: Config) extends ListenerAdapter[
   override def disconnect = {
     actorSystem.shutdown()
     innerClient.quitServer
+    logger.info(s"shutdown bot.")
   }
 
   override def isConnected: Boolean = {

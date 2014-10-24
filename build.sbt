@@ -7,7 +7,7 @@ organization := "net.mtgto"
 
 version := "0.3.0-SNAPSHOT"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.11.2"
 
 crossScalaVersions := Seq("2.10.2")
 
@@ -16,11 +16,11 @@ resolvers ++= Seq("Typesafe Repository" at "http://repo.typesafe.com/typesafe/re
 libraryDependencies := Seq(
   "org.pircbotx" % "pircbotx" % "1.8",
   "com.typesafe" % "config" % "1.2.1",
-  "com.typesafe.akka" %% "akka-actor" % "2.1.0",
+  "com.typesafe.akka" %% "akka-actor" % "2.3.6",
   "us.theatr" %% "akka-quartz" % "0.3.0",
   "ch.qos.logback" % "logback-classic" % "1.0.7",
-  "junit" % "junit" % "4.10" % "test",
-  "org.specs2" %% "specs2" % "1.14" % "test"
+  "junit" % "junit" % "4.10" % "test"
+//  "org.specs2" %% "specs2" % "1.14" % "test"
 )
 
 scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "UTF8", "-feature")
@@ -29,9 +29,9 @@ unmanagedBase in Runtime <<= baseDirectory { base => base / "bots" }
 
 initialCommands := "import net.mtgto.irc._"
 
-ScctPlugin.instrumentSettings
+//ScctPlugin.instrumentSettings
 
-testOptions in ScctTest += Tests.Argument(TestFrameworks.Specs2, "console", "junitxml")
+//testOptions in ScctTest += Tests.Argument(TestFrameworks.Specs2, "console", "junitxml")
 
 org.scalastyle.sbt.ScalastylePlugin.Settings
 
